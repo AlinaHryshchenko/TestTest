@@ -23,7 +23,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         
         self.window = window
-        
+        window.overrideUserInterfaceStyle = .light
+
         let mainCoordinator = MainCoordinator(rootNavigationController: navigationController)
         mainCoordinator.start()
     }

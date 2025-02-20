@@ -37,7 +37,6 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
                     }
                     .padding()
                 }
-                
             }
             .listStyle(PlainListStyle())
             .background(Color.white)
@@ -105,7 +104,9 @@ struct UserRow: View {
 #Preview {
     UserListView(viewModel: UserListViewModel(
         networkService: NetworkManager(),
-        coordinator: UserListCoordinator(mainCoordinator: MainCoordinator(rootNavigationController: UINavigationController()))))
+        coordinator: UserListCoordinator(
+            mainCoordinator: MainCoordinator(
+                rootNavigationController: UINavigationController()))))
 }
 
 

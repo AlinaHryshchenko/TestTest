@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A14CAC12D67DC500001A71F /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A14CAC02D67DC500001A71F /* CameraPicker.swift */; };
+		9A14CAC42D67DC880001A71F /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A14CAC32D67DC880001A71F /* PhotoPicker.swift */; };
+		9A14CAC62D67DCA80001A71F /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A14CAC52D67DCA80001A71F /* ImagePickerViewModel.swift */; };
+		9A14CAC82D67E4830001A71F /* TypePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A14CAC72D67E4830001A71F /* TypePosition.swift */; };
+		9A14CACA2D67E4A50001A71F /* UsersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A14CAC92D67E4A50001A71F /* UsersResponse.swift */; };
 		9AEA51352D63E4AF006E0595 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEA51342D63E4AF006E0595 /* AppDelegate.swift */; };
 		9AEA51372D63E4AF006E0595 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEA51362D63E4AF006E0595 /* SceneDelegate.swift */; };
 		9AEA513E2D63E4B1006E0595 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AEA513D2D63E4B1006E0595 /* Assets.xcassets */; };
@@ -190,6 +195,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9A14CAC02D67DC500001A71F /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
+		9A14CAC32D67DC880001A71F /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		9A14CAC52D67DCA80001A71F /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
+		9A14CAC72D67E4830001A71F /* TypePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypePosition.swift; sourceTree = "<group>"; };
+		9A14CAC92D67E4A50001A71F /* UsersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersResponse.swift; sourceTree = "<group>"; };
 		9AEA51312D63E4AF006E0595 /* TestTaskAbzSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestTaskAbzSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AEA51342D63E4AF006E0595 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9AEA51362D63E4AF006E0595 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -386,6 +396,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9A14CAC22D67DC560001A71F /* Picker */ = {
+			isa = PBXGroup;
+			children = (
+				9A14CAC02D67DC500001A71F /* CameraPicker.swift */,
+				9A14CAC32D67DC880001A71F /* PhotoPicker.swift */,
+				9A14CAC52D67DCA80001A71F /* ImagePickerViewModel.swift */,
+			);
+			path = Picker;
+			sourceTree = "<group>";
+		};
 		9AEA51282D63E4AF006E0595 = {
 			isa = PBXGroup;
 			children = (
@@ -405,6 +425,7 @@
 		9AEA51332D63E4AF006E0595 /* TestTaskAbzSwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				9A14CAC22D67DC560001A71F /* Picker */,
 				9AEA52B12D63F199006E0595 /* MainCoordinator */,
 				9AEA52B02D63F13D006E0595 /* Root */,
 				9AEA52AB2D63F09A006E0595 /* Entities */,
@@ -631,6 +652,8 @@
 				9AEA52AC2D63F0D2006E0595 /* TopToolbar.swift */,
 				9AEA52AE2D63F0F9006E0595 /* BottomTabBar.swift */,
 				9AEA52B22D63F2EE006E0595 /* User.swift */,
+				9A14CAC92D67E4A50001A71F /* UsersResponse.swift */,
+				9A14CAC72D67E4830001A71F /* TypePosition.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -889,15 +912,20 @@
 				9AEA52A72D63F010006E0595 /* Colors.swift in Sources */,
 				9AEA52AA2D63F058006E0595 /* ValidatorManager.swift in Sources */,
 				9AEA51572D63E9D6006E0595 /* UserListView.swift in Sources */,
+				9A14CAC82D67E4830001A71F /* TypePosition.swift in Sources */,
 				9AEA52B52D63F394006E0595 /* NetworkManager.swift in Sources */,
 				9AEA515D2D63EA9E006E0595 /* SignUpViewModel.swift in Sources */,
 				9AEA51512D63E864006E0595 /* MainCoordinator.swift in Sources */,
 				9AEA515B2D63EA60006E0595 /* SignUpView.swift in Sources */,
+				9A14CAC42D67DC880001A71F /* PhotoPicker.swift in Sources */,
 				9AEA51372D63E4AF006E0595 /* SceneDelegate.swift in Sources */,
 				9AEA52B32D63F2EE006E0595 /* User.swift in Sources */,
 				9AEA52A52D63EFFA006E0595 /* NutinoSansFont.swift in Sources */,
 				9AEA51532D63E890006E0595 /* UserListCoordinator.swift in Sources */,
 				9AEA52AD2D63F0D2006E0595 /* TopToolbar.swift in Sources */,
+				9A14CAC62D67DCA80001A71F /* ImagePickerViewModel.swift in Sources */,
+				9A14CAC12D67DC500001A71F /* CameraPicker.swift in Sources */,
+				9A14CACA2D67E4A50001A71F /* UsersResponse.swift in Sources */,
 				9AEA52C72D65301E006E0595 /* ErrorManager.swift in Sources */,
 				9AEA51552D63E96A006E0595 /* UserListViewModel.swift in Sources */,
 				9AEA52C92D653289006E0595 /* ImageManager.swift in Sources */,
@@ -1044,6 +1072,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5A6MRQFFRW;
@@ -1059,8 +1088,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.alina.hryshchenko.TestTaskAbzSwiftUI;
+				PRODUCT_BUNDLE_IDENTIFIER = com.TestTaskAbzSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1072,6 +1102,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5A6MRQFFRW;
@@ -1087,8 +1118,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.alina.hryshchenko.TestTaskAbzSwiftUI;
+				PRODUCT_BUNDLE_IDENTIFIER = com.TestTaskAbzSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

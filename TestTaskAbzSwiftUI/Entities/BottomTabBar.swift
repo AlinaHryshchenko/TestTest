@@ -11,7 +11,6 @@ import SwiftUI
 struct BottomTabBar: View {
     @Binding var selectedTab: Int
     var navigateToSignUp: () -> Void
-        //var navigateUserList: () -> Void
     
     var body: some View {
         HStack {

@@ -11,13 +11,14 @@ import PhotosUI
 
 struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
     @ObservedObject private var viewModel: ViewModel
+    @StateObject private var imagePickerViewModel = ImagePickerViewModel()
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
     
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         VStack {
             TopToolbar(title: "Working with GET request")
@@ -58,23 +59,19 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                             .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
                         Spacer()
                         
-                        PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
+                        Button(action: {
+                            imagePickerViewModel.showActionSheet = true
+                        }) {
                             Text("Upload")
                                 .foregroundColor(Color(Colors.textBlueColor.rawValue))
                                 .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
                         }
-                        .onChange(of: viewModel.selectedPhotoItem) { newItem in
-                            
-                            viewModel.handlePhotoSelection(newItem)
-                        }
                     }
-                    
                     .padding()
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(viewModel.uploadErrorMessage != nil ? Color(Colors.redColor.rawValue) : Color(Colors.tFBorderColor.rawValue), lineWidth: 1)
                     )
-                    
                     
                     if let uploadErrorMessage = viewModel.uploadErrorMessage {
                         ErrorText(message: uploadErrorMessage)
@@ -115,9 +112,37 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                 viewModel.navigateToSignUp()
             })
         }
+        .actionSheet(isPresented: $imagePickerViewModel.showActionSheet) {
+            ActionSheet(
+                title: Text("Choose how you want to add a photo"),
+                buttons: [
+                    .default(Text("Camera"), action: {
+                        imagePickerViewModel.showCameraPicker = true
+                    }),
+                    .default(Text("Gallery"), action: {
+                        imagePickerViewModel.showPhotoPicker = true
+                    }),
+                    .cancel()
+                ]
+            )
+        }
+        .sheet(isPresented: $imagePickerViewModel.showPhotoPicker) {
+            PhotoPicker(image: $imagePickerViewModel.image)
+        }
+        .fullScreenCover(isPresented: $imagePickerViewModel.showCameraPicker) {
+            CameraPicker(image: $imagePickerViewModel.image)
+                .ignoresSafeArea()
+        }
+        .onChange(of: imagePickerViewModel.image) { newImage in
+            if let newImage = newImage {
+                viewModel.selectedImage = newImage
+                viewModel.photoPath = viewModel.imageManager.saveImageToFile(image: newImage)
+                viewModel.isPhotoUploaded = viewModel.photoPath != nil
+            }
+        }
     }
 }
-
+    
 struct CustomTextField: View {
     var placeholder: String
     @Binding var text: String
@@ -139,7 +164,8 @@ struct CustomTextField: View {
         VStack(alignment: .leading, spacing: 2) {
             TextField(placeholder, text: $text)
                 .padding()
-                .overlay(RoundedRectangle(cornerRadius: 4).stroke(isValid ? Color(Colors.tFBorderColor.rawValue)
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(isValid 
+                                                                  ? Color(Colors.tFBorderColor.rawValue)
                                                                   : Color(Colors.redColor.rawValue),
                                                                   lineWidth: 1))
                 .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
@@ -167,6 +193,12 @@ struct ErrorText: View {
 }
 
 #Preview {
-    SignUpView(viewModel: SignUpViewModel(imageManager: ImageServices(), coordinator: SignUpCoordinator(mainCoordinator: MainCoordinator(rootNavigationController: UINavigationController()), imageManager:  ImageServices(), networkManager: NetworkManager()), networkManager: NetworkManager()))
+    SignUpView(viewModel: SignUpViewModel(
+        imageManager: ImageServices(),
+        coordinator: SignUpCoordinator(
+            mainCoordinator: MainCoordinator(rootNavigationController: UINavigationController()),
+            imageManager:  ImageServices(),
+            networkManager: NetworkManager()),
+        networkManager: NetworkManager()))
     
 }

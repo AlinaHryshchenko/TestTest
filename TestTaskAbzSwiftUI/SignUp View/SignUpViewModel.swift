@@ -23,9 +23,7 @@ protocol SignUpViewModelProtocol: ObservableObject {
     var positions: [TypePosition] { get }
     var canSignUp: Bool { get }
     var selectedTab: Int { get set }
-    var selectedPhotoItem: PhotosPickerItem? { get set }
     var imageManager: ImageServicesProtocol { get set }
-    func handlePhotoSelection(_ newItem: PhotosPickerItem?)
     func registerUser()
     func navigateToSignUp()
 }
@@ -42,7 +40,6 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     @Published var isLoading: Bool = false
     @Published var showError: Bool = false
     @Published var errorMessage: String?
-    @Published var selectedPhotoItem: PhotosPickerItem?
     
     var imageManager: ImageServicesProtocol
     private let networkManager: NetworkProtocol
@@ -64,17 +61,6 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     func navigateToSignUp() {
         coordinator.startUserListFlow()
     }
-    
-    func handlePhotoSelection(_ newItem: PhotosPickerItem?) {
-           imageManager.handlePhotoSelection(newItem) { [weak self] image, path, errorMessage in
-               DispatchQueue.main.async {
-                   self?.selectedImage = image
-                   self?.photoPath = path
-                   self?.isPhotoUploaded = path != nil
-                   self?.uploadErrorMessage = errorMessage
-               }
-           }
-       }
     
     func registerUser() {
            guard let photoPath = photoPath else {
