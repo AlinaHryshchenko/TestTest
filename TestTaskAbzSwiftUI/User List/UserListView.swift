@@ -10,12 +10,11 @@ import SwiftUI
 
 struct UserListView<ViewModel: UserListViewModelProtocol>: View {
     @ObservedObject private var viewModel: ViewModel
-  
-        
+    
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-   
+    
     var body: some View {
         VStack {
             TopToolbar(title: "Working with GET request")
@@ -28,6 +27,17 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
                             viewModel.loadNextPageIfNeeded(currentItem: user)
                         }
                 }
+                
+                if viewModel.isLoading {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                        Spacer()
+                    }
+                    .padding()
+                }
+                
             }
             .listStyle(PlainListStyle())
             .background(Color.white)
@@ -39,7 +49,7 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
             })
         }
         .onAppear {
-            viewModel.loadUsers()
+            viewModel.loadUsers(nextPageLink: nil)
         }
     }
 }

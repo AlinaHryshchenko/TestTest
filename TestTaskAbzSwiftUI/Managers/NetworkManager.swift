@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - Networking Protocol
 protocol NetworkProtocol {
-    func fetchUsers(page: Int, count: Int, completion: @escaping (Result<[User], Error>) -> Void)
+    func fetchUsers(page: Int, count: Int, completion: @escaping (Result<([User], Int, String?), Error>) -> Void)
     func fetchToken(completion: @escaping (String?, Error?) -> Void)
     func registerUser(name: String, email: String, phone: String, positionId: Int, photoPath: String, token: String, completion: @escaping (Bool, Error?) -> Void)
     func registerUserWithDetails(name: String, email: String, phone: String, positionId: Int, photoPath: String, completion: @escaping (Bool, Error?) -> Void)
 }
 
 final class NetworkManager: NetworkProtocol {
-    func fetchUsers(page: Int, count: Int, completion: @escaping (Result<[User], Error>) -> Void) {
+    func fetchUsers(page: Int, count: Int, completion: @escaping (Result<([User], Int, String?), Error>) -> Void) {
         let urlString = "https://frontend-test-assignment-api.abz.agency/api/v1/users?page=\(page)&count=\(count)"
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 400)))
@@ -34,15 +34,12 @@ final class NetworkManager: NetworkProtocol {
             }
             do {
                 let decodedResponse = try JSONDecoder().decode(UsersResponse.self, from: data)
-                completion(.success(decodedResponse.users))
+                completion(.success((decodedResponse.users, decodedResponse.total_pages, decodedResponse.links.next_url)))
             } catch {
                 completion(.failure(error))
             }
         }.resume()
     }
-    
-   
-
     
     
     func fetchToken(completion: @escaping (String?, Error?) -> Void) {
@@ -91,7 +88,7 @@ final class NetworkManager: NetworkProtocol {
             
             self?.fetchUsers(page: 1, count: 100) { usersResult in
                 switch usersResult {
-                case .success(let users):
+                case .success(let users, _, _):
                     let nextUserId = self?.getNextUserId(from: users) ?? 1
                     
                     self?.registerUser(name: name, email: email, phone: phone, positionId: positionId, photoPath: photoPath, token: token) { success, error in
