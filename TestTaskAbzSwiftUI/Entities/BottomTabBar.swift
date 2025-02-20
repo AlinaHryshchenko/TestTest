@@ -20,14 +20,18 @@ struct BottomTabBar: View {
                 navigateToSignUp()
             }) {
                 HStack {
-                    Image("ThreePearson")
+                    Image(selectedTab == 0 
+                          ? "ThreePearsonBlue"
+                          : "ThreePearsonDark")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
                     
                     Text("Users")
                         .font(.custom("Nunito Sans", size: 16))
-                        .foregroundColor(Color("BlueColor", bundle: nil))
+                        .foregroundColor(selectedTab == 0
+                                         ? Color("BlueColor", bundle: nil)
+                                         : Color("TextGrayColor", bundle: nil))
                 }
                 .padding()
             }
@@ -37,14 +41,18 @@ struct BottomTabBar: View {
                 navigateToSignUp()
             }) {
                 HStack {
-                    Image("AddPearsonDark")
+                    Image(selectedTab == 1 
+                          ? "AddPearsonBlue"
+                          : "AddPearsonDark")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
                     
                     Text("Sign up")
                         .font(.custom("Nunito Sans", size: 16))
-                        .foregroundColor(Color("TextGrayColor", bundle: nil))
+                        .foregroundColor(selectedTab == 1
+                                         ? Color("BlueColor", bundle: nil)
+                                         : Color("TextGrayColor", bundle: nil))
                 }
                 .padding()
             }

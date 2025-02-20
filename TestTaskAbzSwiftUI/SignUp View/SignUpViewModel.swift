@@ -40,10 +40,10 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     @Published var isLoading: Bool = false
     @Published var showError: Bool = false
     @Published var errorMessage: String?
-    
+    @Published var selectedTab: Int
+
     var imageManager: ImageServicesProtocol
     private let networkManager: NetworkProtocol
-    var selectedTab: Int = 0
     var coordinator: SignUpCoordinatorProtocol
     var positions: [TypePosition] = TypePosition.allCases
     
@@ -56,6 +56,8 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
         self.imageManager = imageManager
         self.coordinator = coordinator
         self.networkManager = networkManager
+        self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 1
+
     }
     
     func navigateToSignUp() {

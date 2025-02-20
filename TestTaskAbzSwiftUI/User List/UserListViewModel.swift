@@ -20,8 +20,8 @@ final class UserListViewModel: UserListViewModelProtocol {
     @Published private(set) var users: [User] = []
     @Published var isLoading: Bool = false
     @Published private(set) var canLoadMore: Bool = true
+    @Published var selectedTab: Int
     
-    var selectedTab: Int = 0
     private var currentPage = 1
     private let pageSize = 6
     private var totalUsers: Int = 0
@@ -36,6 +36,8 @@ final class UserListViewModel: UserListViewModelProtocol {
     init(networkService: NetworkProtocol, coordinator: UserListCoordinatorProtocol) {
         self.networkService = networkService
         self.coordinator = coordinator
+        self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 0
+
     }
     
     func loadUsers(nextPageLink: String? = nil) {

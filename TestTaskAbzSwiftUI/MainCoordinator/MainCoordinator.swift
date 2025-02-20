@@ -9,12 +9,14 @@ import Foundation
 import SwiftUI
 
 protocol MainCoordinatorProtocol {
+    var selectedTab: Int { get set }
     func setRootController(_ controller: UIViewController)
     func startHomeFlow()
     func startSignUpFlow()
 }
 
 final class MainCoordinator: MainCoordinatorProtocol {
+    @Published var selectedTab: Int = 0
     var rootNavigationController: UINavigationController
     
     init(rootNavigationController: UINavigationController) {
@@ -31,11 +33,13 @@ final class MainCoordinator: MainCoordinatorProtocol {
     }
     
     func startHomeFlow() {
+        selectedTab = 0
         let userListCoordinator = UserListCoordinator(mainCoordinator: self)
         userListCoordinator.start()
     }
     
     func startSignUpFlow() {
+        selectedTab = 1 
         let signUpCoordinator = SignUpCoordinator(mainCoordinator: self, imageManager: ImageServices(), networkManager: NetworkManager())
         signUpCoordinator.start()
     }
