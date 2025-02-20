@@ -10,6 +10,7 @@ import Foundation
 protocol UserListViewModelProtocol: ObservableObject {
     var users: [User] { get }
     var selectedTab: Int { get set }
+    var isLoading: Bool  { get set }
     func loadUsers()
     func navigateToSignUp()
     func loadNextPageIfNeeded(currentItem user: User?)
@@ -17,7 +18,7 @@ protocol UserListViewModelProtocol: ObservableObject {
 
 final class UserListViewModel: UserListViewModelProtocol {
     @Published private(set) var users: [User] = []
-    @Published private(set) var isLoading: Bool = false
+    @Published var isLoading: Bool = false
     @Published private(set) var canLoadMore: Bool = true
     
     var selectedTab: Int = 0
@@ -35,7 +36,6 @@ final class UserListViewModel: UserListViewModelProtocol {
     
     func loadUsers() {
         guard !isLoading, canLoadMore else { return }
-        
         isLoading = true
         networkService.fetchUsers(page: currentPage, count: pageSize) { [weak self] result in
             DispatchQueue.main.async {
@@ -46,6 +46,8 @@ final class UserListViewModel: UserListViewModelProtocol {
                     self?.users.append(contentsOf: newUsers)
                     self?.canLoadMore = !newUsers.isEmpty
                     self?.currentPage += 1
+                    
+                    print(newUsers)
                     
                 case .failure(let error):
                     print("Error loading users: \(error.localizedDescription)")

@@ -15,63 +15,25 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-    
+   
     var body: some View {
         VStack {
             TopToolbar(title: "Working with GET request")
                 .padding(.top, 5)
             
-            List(viewModel.users) { user in
-                HStack(alignment: .top) {
-                    AsyncImage(url: URL(string: user.photo)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .foregroundColor(.gray)
-                    }
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                    .padding(.horizontal, 10)
-                    
-                    VStack(alignment: .leading) {
-                        Text(user.name)
-                            .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
-                            .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
-                            .lineLimit(nil)
-                        
-                        Spacer(minLength: 0)
-                        
-                        Text(user.position)
-                            .font(.custom(NutinoSansFont.light.rawValue, size: 14))
-                            .foregroundColor(Color("TextLightGrayColor", bundle: nil))
-                            .lineLimit(nil)
-                        
-                        Spacer(minLength: 0)
-                        
-                        Text(user.email)
-                            .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                            .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
-                            .lineLimit(nil)
-                        
-                        Spacer(minLength: 5)
-                        
-                        Text(user.phone)
-                            .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                            .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
-                            .lineLimit(nil)
-                    }
-                }
-                .padding(.vertical, 15)
-                .onAppear {
-                    viewModel.loadNextPageIfNeeded(currentItem: user)
+            List {
+                ForEach(viewModel.users) { user in
+                    UserRow(user: user)
+                        .onAppear {
+                            viewModel.loadNextPageIfNeeded(currentItem: user)
+                        }
                 }
             }
             .listStyle(PlainListStyle())
             .background(Color.white)
             
             Spacer()
-       
+            
             BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
                 viewModel.navigateToSignUp()
             })
@@ -79,6 +41,54 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
         .onAppear {
             viewModel.loadUsers()
         }
+    }
+}
+
+struct UserRow: View {
+    let user: User
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            AsyncImage(url: URL(string: user.photo)) { image in
+                image.resizable()
+            } placeholder: {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .foregroundColor(.gray)
+            }
+            .frame(width: 50, height: 50)
+            .clipShape(Circle())
+            .padding(.horizontal, 10)
+            
+            VStack(alignment: .leading) {
+                Text(user.name)
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
+                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .lineLimit(nil)
+                
+                Spacer(minLength: 0)
+                
+                Text(user.position)
+                    .font(.custom(NutinoSansFont.light.rawValue, size: 14))
+                    .foregroundColor(Color("TextLightGrayColor", bundle: nil))
+                    .lineLimit(nil)
+                
+                Spacer(minLength: 0)
+                
+                Text(user.email)
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
+                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .lineLimit(nil)
+                
+                Spacer(minLength: 5)
+                
+                Text(user.phone)
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
+                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .lineLimit(nil)
+            }
+        }
+        .padding(.vertical, 15)
     }
 }
 
