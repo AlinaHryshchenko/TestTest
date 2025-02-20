@@ -21,7 +21,7 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
 
     var body: some View {
         VStack {
-            TopToolbar(title: "Working with GET request")
+            TopToolbar(title: "Working with POST request")
                 .padding(.top, 5)
             Spacer()
             
@@ -169,6 +169,14 @@ struct CustomTextField: View {
                                                                   : Color(Colors.redColor.rawValue),
                                                                   lineWidth: 1))
                 .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+            
+            if isPhone && (text.isEmpty || isValid) {
+                Text("+38 (XXX) XXX - XX - XX")
+                    .foregroundColor(Color(Colors.textGrayColor.rawValue))
+                    .font(.custom(NutinoSansFont.light.rawValue, size: 12))
+                    .padding(.leading, 15)
+                    .padding(.top, 3)
+            }
             
             Text(isEmail ? "Invalid email format" : isPhone ? "Required field" : "Required field")
                 .foregroundColor(Color(Colors.redColor.rawValue))
