@@ -17,7 +17,8 @@ struct TopToolbar: View {
             .foregroundColor(.black)
             .padding(16)
             .frame(maxWidth: .infinity)
-            .background(Color.yellow)
+            .background(Color(Colors.yellowColor))
+
             .padding(.horizontal, -20)
             .ignoresSafeArea(edges: .top)
     }

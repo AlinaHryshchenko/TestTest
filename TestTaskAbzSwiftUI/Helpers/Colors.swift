@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum Colors: String {
     case blueColor = "BlueColor"
@@ -19,4 +20,10 @@ enum Colors: String {
     case textLightGrayColor = "TextLightGrayColor"
     case tFBorderColor = "TFBorderColor"
     case yellowColor = "YellowColor"
+}
+
+extension Color {
+    init(_ color: Colors) {
+        self.init(color.rawValue, bundle: nil)
+    }
 }

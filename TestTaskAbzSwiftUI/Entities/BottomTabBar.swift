@@ -30,9 +30,9 @@ struct BottomTabBar: View {
                     Text("Users")
                         .font(.custom("Nunito Sans", size: 16))
                         .foregroundColor(selectedTab == 0
-                                         ? Color("BlueColor", bundle: nil)
-                                         : Color("TextGrayColor", bundle: nil))
-                }
+                                         ? Color(Colors.blueColor)
+                                         : Color(Colors.textGrayColor)
+                )}
                 .padding()
             }
             Spacer()
@@ -51,9 +51,9 @@ struct BottomTabBar: View {
                     Text("Sign up")
                         .font(.custom("Nunito Sans", size: 16))
                         .foregroundColor(selectedTab == 1
-                                         ? Color("BlueColor", bundle: nil)
-                                         : Color("TextGrayColor", bundle: nil))
-                }
+                                         ? Color(Colors.blueColor)
+                                         : Color(Colors.textGrayColor)
+                )}
                 .padding()
             }
             Spacer()

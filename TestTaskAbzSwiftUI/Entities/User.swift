@@ -16,6 +16,7 @@ struct User: Identifiable, Decodable, Equatable {
     let phone: String
     let position: String
     let photo: String
+    var position_id: Int
     var registration_timestamp: Date
 }
 

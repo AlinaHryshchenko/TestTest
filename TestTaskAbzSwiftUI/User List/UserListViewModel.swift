@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 protocol UserListViewModelProtocol: ObservableObject {
     var users: [User] { get }
@@ -14,6 +15,7 @@ protocol UserListViewModelProtocol: ObservableObject {
     func loadUsers(nextPageLink: String?)
     func navigateToSignUp()
     func loadNextPageIfNeeded(currentItem user: User?)
+    var isConnected: Bool { get set }
 }
 
 final class UserListViewModel: UserListViewModelProtocol {
@@ -21,6 +23,7 @@ final class UserListViewModel: UserListViewModelProtocol {
     @Published var isLoading: Bool = false
     @Published private(set) var canLoadMore: Bool = true
     @Published var selectedTab: Int
+    @Published var isConnected: Bool = true
     
     private var currentPage = 1
     private let pageSize = 6
@@ -30,18 +33,33 @@ final class UserListViewModel: UserListViewModelProtocol {
     private var nextPageLink: String?
     private var prevPageLink: String?
     
+    private var cancellables = Set<AnyCancellable>()
+    
+    private let networkMonitor: NetworkMonitorProtocol
     private let networkService: NetworkProtocol
     private let coordinator: UserListCoordinatorProtocol
     
-    init(networkService: NetworkProtocol, coordinator: UserListCoordinatorProtocol) {
+    init(networkService: NetworkProtocol, coordinator: UserListCoordinatorProtocol, networkMonitor: NetworkMonitorProtocol) {
         self.networkService = networkService
         self.coordinator = coordinator
         self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 0
-
+        self.networkMonitor = networkMonitor
+        
+        networkMonitor.isConnectedPublisher
+            .sink { [weak self] isConnected in
+                self?.isConnected = isConnected
+            }
+            .store(in: &cancellables)
     }
     
     func loadUsers(nextPageLink: String? = nil) {
         guard !isLoading, canLoadMore else { return }
+       
+        if !isConnected {
+            print("No internet connection")
+            return
+        }
+        
         isLoading = true
         
         let pageLink = nextPageLink ?? "https://frontend-test-assignment-api.abz.agency/api/v1/users?page=\(currentPage)&count=\(pageSize)"

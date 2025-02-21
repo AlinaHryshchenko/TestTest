@@ -16,43 +16,65 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
     }
     
     var body: some View {
-        VStack {
-            TopToolbar(title: "Working with GET request")
-                .padding(.top, 5)
-            
-            List {
-                ForEach(viewModel.users) { user in
-                    UserRow(user: user)
-                        .onAppear {
-                            viewModel.loadNextPageIfNeeded(currentItem: user)
+            VStack {
+                TopToolbar(title: "Working with GET request")
+                    .padding(.top, 5)
+                if !viewModel.isConnected {
+                               VStack(spacing: 16) {
+                                   Image("NoInternetConnecton")
+                                       .resizable()
+                                       .frame(width: 200, height: 200)
+                                   
+                                   Text("No internet connection")
+                                       .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
+                                       .foregroundColor(Color(Colors.textDarkDrayColor))
+                               }
+                               .frame(maxWidth: .infinity, maxHeight: .infinity)
+                           } else if viewModel.users.isEmpty {
+                    VStack(spacing: 16) {
+                        Image("NoUsers")
+                            .resizable()
+                            .frame(width: 200, height: 200)
+                        
+                        Text("There are no users yet")
+                            .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
+                            .foregroundColor(Color(Colors.textDarkDrayColor))
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        ForEach(viewModel.users) { user in
+                            UserRow(user: user)
+                                .onAppear {
+                                    viewModel.loadNextPageIfNeeded(currentItem: user)
+                                }
                         }
+                        
+                        if viewModel.isLoading {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                Spacer()
+                            }
+                            .padding()
+                        }
+                    }
+                    .listStyle(PlainListStyle())
+                    .background(Color.white)
                 }
                 
-                if viewModel.isLoading {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                        Spacer()
-                    }
-                    .padding()
-                }
+                Spacer()
+                
+                BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
+                    viewModel.navigateToSignUp()
+                })
             }
-            .listStyle(PlainListStyle())
-            .background(Color.white)
-            
-            Spacer()
-            
-            BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
-                viewModel.navigateToSignUp()
-            })
-        }
-        .onAppear {
-            viewModel.loadUsers(nextPageLink: nil)
+            .onAppear {
+                viewModel.loadUsers(nextPageLink: nil)
+            }
         }
     }
-}
-
 struct UserRow: View {
     let user: User
     
@@ -72,28 +94,28 @@ struct UserRow: View {
             VStack(alignment: .leading) {
                 Text(user.name)
                     .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
-                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .foregroundColor(Color(Colors.textDarkDrayColor))
                     .lineLimit(nil)
                 
                 Spacer(minLength: 0)
                 
                 Text(user.position)
                     .font(.custom(NutinoSansFont.light.rawValue, size: 14))
-                    .foregroundColor(Color("TextLightGrayColor", bundle: nil))
+                    .foregroundColor(Color(Colors.textLightGrayColor))
                     .lineLimit(nil)
                 
                 Spacer(minLength: 0)
                 
                 Text(user.email)
                     .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .foregroundColor(Color(Colors.textDarkDrayColor))
                     .lineLimit(nil)
                 
                 Spacer(minLength: 5)
                 
                 Text(user.phone)
                     .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                    .foregroundColor(Color("TextDarkDrayColor", bundle: nil))
+                    .foregroundColor(Color(Colors.textDarkDrayColor))
                     .lineLimit(nil)
             }
         }
@@ -106,7 +128,8 @@ struct UserRow: View {
         networkService: NetworkManager(),
         coordinator: UserListCoordinator(
             mainCoordinator: MainCoordinator(
-                rootNavigationController: UINavigationController()))))
+                rootNavigationController: UINavigationController())), 
+        networkMonitor: NetworkMonitor()))
 }
 
 

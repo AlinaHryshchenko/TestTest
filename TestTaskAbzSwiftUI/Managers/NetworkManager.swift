@@ -13,6 +13,7 @@ protocol NetworkProtocol {
     func fetchToken(completion: @escaping (String?, Error?) -> Void)
     func registerUser(name: String, email: String, phone: String, positionId: Int, photoPath: String, token: String, completion: @escaping (Bool, Error?) -> Void)
     func registerUserWithDetails(name: String, email: String, phone: String, positionId: Int, photoPath: String, completion: @escaping (Bool, Error?) -> Void)
+    func fetchPositions(completion: @escaping (Result<[Position], Error>) -> Void)
 }
 
 final class NetworkManager: NetworkProtocol {
@@ -143,6 +144,11 @@ final class NetworkManager: NetworkProtocol {
         append("Content-Disposition: form-data; name=\"position_id\"\r\n\r\n")
         append("\(positionId)\r\n")
         
+        let registrationTimestamp = Int(Date().timeIntervalSince1970) // Текущее время в секундах
+            append("--\(boundary)\(newline)")
+            append("Content-Disposition: form-data; name=\"registration_timestamp\"\r\n\r\n")
+            append("\(registrationTimestamp)\r\n")
+        
         if let photoData = try? Data(contentsOf: URL(fileURLWithPath: photoPath)) {
             append("--\(boundary)\(newline)")
             append("Content-Disposition: form-data; name=\"photo\"; filename=\"photo.jpg\"\r\n")
@@ -174,6 +180,34 @@ final class NetworkManager: NetworkProtocol {
                 }
             } else {
                 completion(false, NSError(domain: "Invalid response format", code: 500, userInfo: nil))
+            }
+        }.resume()
+    }
+    
+    func fetchPositions(completion: @escaping (Result<[Position], Error>) -> Void) {
+        let urlString = "https://frontend-test-assignment-api.abz.agency/api/v1/positions"
+        
+        guard let url = URL(string: urlString) else {
+            completion(.failure(NSError(domain: "Invalid URL", code: 400)))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "No data", code: 404)))
+                return
+            }
+            
+            do {
+                let decodedResponse = try JSONDecoder().decode(PositionsResponse.self, from: data)
+                completion(.success(decodedResponse.positions))
+            } catch {
+                completion(.failure(error))
             }
         }.resume()
     }

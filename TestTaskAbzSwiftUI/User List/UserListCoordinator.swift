@@ -24,7 +24,9 @@ final class UserListCoordinator: UserListCoordinatorProtocol {
     }
     
     func start() {
-        let viewModel = UserListViewModel(networkService: NetworkManager(), coordinator: self)
+        let viewModel = UserListViewModel(networkService: NetworkManager(),
+                                          coordinator: self,
+                                          networkMonitor: NetworkMonitor())
         let view = UserListView(viewModel: viewModel)
         let host = UIHostingController(rootView: view)
         

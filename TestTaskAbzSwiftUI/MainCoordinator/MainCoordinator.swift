@@ -26,7 +26,9 @@ final class MainCoordinator: MainCoordinatorProtocol {
     func start() {
         let networkService = NetworkManager()
         let userListCoordinator = UserListCoordinator(mainCoordinator: self)
-        let userListViewModel = UserListViewModel(networkService: networkService, coordinator: userListCoordinator)                
+        let userListViewModel = UserListViewModel(networkService: networkService,
+                                                  coordinator: userListCoordinator,
+                                                  networkMonitor: NetworkMonitor())                
         let view = UserListView(viewModel: userListViewModel)
         let splashViewController = UIHostingController(rootView: view)
         rootNavigationController.viewControllers = [splashViewController]
