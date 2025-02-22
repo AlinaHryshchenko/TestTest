@@ -59,7 +59,7 @@ struct BottomTabBar: View {
             Spacer()
         }
         .frame(maxWidth: .infinity)
-        .background(Color.gray)
+        .background(Color(Colors.lightGrayColor))
     }
 }
 

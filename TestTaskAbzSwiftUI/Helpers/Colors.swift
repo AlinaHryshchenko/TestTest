@@ -20,6 +20,7 @@ enum Colors: String {
     case textLightGrayColor = "TextLightGrayColor"
     case tFBorderColor = "TFBorderColor"
     case yellowColor = "YellowColor"
+    case lightGrayColor = "LightGrayColor"
 }
 
 extension Color {

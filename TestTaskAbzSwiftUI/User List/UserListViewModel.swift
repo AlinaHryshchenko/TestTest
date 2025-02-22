@@ -12,10 +12,12 @@ protocol UserListViewModelProtocol: ObservableObject {
     var users: [User] { get }
     var selectedTab: Int { get set }
     var isLoading: Bool  { get set }
+    var isConnected: Bool { get set }
+    var hasLoadingFailed: Bool { get }
     func loadUsers(nextPageLink: String?)
     func navigateToSignUp()
     func loadNextPageIfNeeded(currentItem user: User?)
-    var isConnected: Bool { get set }
+   
 }
 
 final class UserListViewModel: UserListViewModelProtocol {
@@ -24,17 +26,15 @@ final class UserListViewModel: UserListViewModelProtocol {
     @Published private(set) var canLoadMore: Bool = true
     @Published var selectedTab: Int
     @Published var isConnected: Bool = true
+    @Published var hasLoadingFailed: Bool = false
     
     private var currentPage = 1
     private let pageSize = 6
     private var totalUsers: Int = 0
     private var totalPages: Int = 1
-    
     private var nextPageLink: String?
     private var prevPageLink: String?
-    
     private var cancellables = Set<AnyCancellable>()
-    
     private let networkMonitor: NetworkMonitorProtocol
     private let networkService: NetworkProtocol
     private let coordinator: UserListCoordinatorProtocol
@@ -61,6 +61,7 @@ final class UserListViewModel: UserListViewModelProtocol {
         }
         
         isLoading = true
+        hasLoadingFailed = false
         
         let pageLink = nextPageLink ?? "https://frontend-test-assignment-api.abz.agency/api/v1/users?page=\(currentPage)&count=\(pageSize)"
         
@@ -96,6 +97,7 @@ final class UserListViewModel: UserListViewModelProtocol {
                     
                 case .failure(let error):
                     print("Error loading users: \(error.localizedDescription)")
+                    self?.hasLoadingFailed = true
                 }
             }
         }

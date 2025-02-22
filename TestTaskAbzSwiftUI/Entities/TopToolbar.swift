@@ -14,12 +14,10 @@ struct TopToolbar: View {
     var body: some View {
         Text(title)
             .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
+            .frame(height: 56)
             .foregroundColor(.black)
-            .padding(16)
             .frame(maxWidth: .infinity)
             .background(Color(Colors.yellowColor))
-
-            .padding(.horizontal, -20)
-            .ignoresSafeArea(edges: .top)
+            .padding(.vertical, 1)
     }
 }

@@ -18,7 +18,6 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
     var body: some View {
             VStack {
                 TopToolbar(title: "Working with GET request")
-                    .padding(.top, 5)
                 if !viewModel.isConnected {
                                VStack(spacing: 16) {
                                    Image("NoInternetConnecton")
@@ -30,7 +29,7 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
                                        .foregroundColor(Color(Colors.textDarkDrayColor))
                                }
                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                           } else if viewModel.users.isEmpty {
+                } else if viewModel.hasLoadingFailed && viewModel.users.isEmpty {
                     VStack(spacing: 16) {
                         Image("NoUsers")
                             .resizable()
@@ -70,9 +69,11 @@ struct UserListView<ViewModel: UserListViewModelProtocol>: View {
                     viewModel.navigateToSignUp()
                 })
             }
+            .toolbar(.hidden)
             .onAppear {
                 viewModel.loadUsers(nextPageLink: nil)
             }
+        
         }
     }
 struct UserRow: View {

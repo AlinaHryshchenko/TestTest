@@ -23,7 +23,6 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
     var body: some View {
            VStack {
                TopToolbar(title: "Working with POST request")
-                   .padding(.top, 5)
                Spacer()
                
                ScrollView {
@@ -123,6 +122,7 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                    viewModel.navigateToSignUp()
                })
            }
+           .toolbar(.hidden)
            .onAppear {
                if !viewModel.positions.isEmpty {
                    isLoadingPositions = false
