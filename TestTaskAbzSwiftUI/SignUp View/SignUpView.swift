@@ -44,9 +44,9 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                 Spacer()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
-                        CustomTextField(placeholder: "Your name", text: $viewModel.name) // Name input field
-                        CustomTextField(placeholder: "Email", text: $viewModel.email, isEmail: true) // Email input field
-                        CustomTextField(placeholder: "Phone", text: $viewModel.phone, isPhone: true) // Phone input field
+                        CustomTextField(text: $viewModel.name, placeholder: "Your name") // Name input field
+                        CustomTextField(text: $viewModel.email, placeholder: "Email", isEmail: true) // Email input field
+                        CustomTextField(text: $viewModel.phone, placeholder: "Phone", isPhone: true) // Phone input field
                        
                         // Position selection
                         Text("Select your position")
@@ -178,10 +178,13 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
             }
             .onChange(of: imagePickerViewModel.image) { newImage in
                 if let newImage = newImage {
-                    viewModel.selectedImage = newImage // Update selected image
-                    viewModel.photoPath = viewModel.imageManager.saveImageToFile(image: newImage) // Save image to file
-                    viewModel.isPhotoUploaded = viewModel.photoPath != nil
+                    viewModel.handleSelectedImage(newImage)
                 }
+            }
+            
+            if let uploadErrorMessage = viewModel.uploadErrorMessage {
+                ErrorText(message: uploadErrorMessage)
+                    .padding(.leading, 15)
             }
         }
     }

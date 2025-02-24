@@ -30,6 +30,7 @@ protocol SignUpViewModelProtocol: ObservableObject {
     func registerUser()
     func navigateToSignUp()
     func loadPositions()
+    func handleSelectedImage(_ image: UIImage) 
 }
 
 final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
@@ -112,11 +113,34 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
                 switch result {
                 case .success(let fetchedPositions):
                     self?.positions = fetchedPositions
-                    print("Fetched positions: \(fetchedPositions)")
                 case .failure(let error):
                     print("Error fetching positions: \(error)")
                 }
             }
+        }
+    }
+    
+    // Validates the selected photo based on size and file size requirements.
+    func validatePhoto(_ image: UIImage) -> Bool {
+        let isValidSize = image.size.width >= 70 && image.size.height >= 70
+        
+        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+            let isValidFileSize = jpegData.count <= 5_000_000
+            return isValidSize && isValidFileSize
+        }
+        return false
+    }
+    
+    // Handles the selected image by validating it and updating the state.
+    func handleSelectedImage(_ image: UIImage) {
+        if validatePhoto(image) {
+            selectedImage = image
+            photoPath = imageManager.saveImageToFile(image: image)
+            isPhotoUploaded = true
+            uploadErrorMessage = nil
+        } else {
+            isPhotoUploaded = false
+            uploadErrorMessage = "Photo is required"
         }
     }
 }
