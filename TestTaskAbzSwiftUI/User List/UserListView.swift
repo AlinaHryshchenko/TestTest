@@ -10,117 +10,77 @@ import SwiftUI
 
 struct UserListView<ViewModel: UserListViewModelProtocol>: View {
     @ObservedObject private var viewModel: ViewModel
-    
+  
+    // MARK: - Initialization
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-            VStack {
-                TopToolbar(title: "Working with GET request")
-                if !viewModel.isConnected {
-                               VStack(spacing: 16) {
-                                   Image("NoInternetConnecton")
-                                       .resizable()
-                                       .frame(width: 200, height: 200)
-                                   
-                                   Text("No internet connection")
-                                       .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
-                                       .foregroundColor(Color(Colors.textDarkDrayColor))
-                               }
-                               .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.hasLoadingFailed && viewModel.users.isEmpty {
-                    VStack(spacing: 16) {
-                        Image("NoUsers")
-                            .resizable()
-                            .frame(width: 200, height: 200)
-                        
-                        Text("There are no users yet")
-                            .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
-                            .foregroundColor(Color(Colors.textDarkDrayColor))
+        VStack {
+            TopToolbar(title: "Working with GET request")
+           
+            // Check internet connection
+            if !viewModel.isConnected {
+                VStack(spacing: 16) {
+                    Image("NoInternetConnecton")
+                        .resizable()
+                        .frame(width: 200, height: 200)
+                    
+                    Text("No internet connection")
+                        .font(.custom(NutinoSansFont.regular.rawValue, size: 20))
+                        .foregroundColor(Color(Colors.textDarkDrayColor))
+                    
+                    Button("Try Again") {
+                        viewModel.checkInternetConnection()
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
-                        ForEach(viewModel.users) { user in
-                            UserRow(user: user)
-                                .onAppear {
-                                    viewModel.loadNextPageIfNeeded(currentItem: user)
-                                }
-                        }
-                        
-                        if viewModel.isLoading {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
-                                Spacer()
-                            }
-                            .padding()
-                        }
-                    }
-                    .listStyle(PlainListStyle())
-                    .background(Color.white)
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+                    .foregroundColor(Color(Colors.textDarkDrayColor))
+                    .frame(minWidth: 140, maxHeight: 50)
+                    .background(Color(Colors.yellowColor))
+                    .cornerRadius(24)
                 }
-                
-                Spacer()
-                
-                BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
-                    viewModel.navigateToSignUp()
-                })
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+               
+                // Show alert if loading failed and no users are available
+            } else if viewModel.hasLoadingFailed && viewModel.users.isEmpty {
+                AlertView(alertType: .noUsers) {
+                    viewModel.loadUsers(nextPageLink: nil)
+                }
+                // Display the list of users
+            } else {
+                List {
+                    ForEach(viewModel.users) { user in
+                        UserRow(user: user)
+                            .onAppear {
+                                viewModel.loadNextPageIfNeeded(currentItem: user)
+                            }
+                    }
+                    if viewModel.isLoading {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                            Spacer()
+                        }
+                        .padding()
+                    }
+                }
+                .listStyle(PlainListStyle())
+                .background(Color.white)
             }
-            .toolbar(.hidden)
-            .onAppear {
-                viewModel.loadUsers(nextPageLink: nil)
-            }
-        
-        }
-    }
-struct UserRow: View {
-    let user: User
-    
-    var body: some View {
-        HStack(alignment: .top) {
-            AsyncImage(url: URL(string: user.photo)) { image in
-                image.resizable()
-            } placeholder: {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .foregroundColor(.gray)
-            }
-            .frame(width: 50, height: 50)
-            .clipShape(Circle())
-            .padding(.horizontal, 10)
+            Spacer()
             
-            VStack(alignment: .leading) {
-                Text(user.name)
-                    .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
-                    .foregroundColor(Color(Colors.textDarkDrayColor))
-                    .lineLimit(nil)
-                
-                Spacer(minLength: 0)
-                
-                Text(user.position)
-                    .font(.custom(NutinoSansFont.light.rawValue, size: 14))
-                    .foregroundColor(Color(Colors.textLightGrayColor))
-                    .lineLimit(nil)
-                
-                Spacer(minLength: 0)
-                
-                Text(user.email)
-                    .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                    .foregroundColor(Color(Colors.textDarkDrayColor))
-                    .lineLimit(nil)
-                
-                Spacer(minLength: 5)
-                
-                Text(user.phone)
-                    .font(.custom(NutinoSansFont.regular.rawValue, size: 14))
-                    .foregroundColor(Color(Colors.textDarkDrayColor))
-                    .lineLimit(nil)
-            }
+            // Bottom tab bar for navigation
+            BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
+                viewModel.navigateToSignUp()
+            })
         }
-        .padding(.vertical, 15)
+        .toolbar(.hidden)
+        .onAppear {
+            // Load users when the view appears
+            viewModel.loadUsers(nextPageLink: nil)
+        }
     }
 }
 
@@ -129,7 +89,7 @@ struct UserRow: View {
         networkService: NetworkManager(),
         coordinator: UserListCoordinator(
             mainCoordinator: MainCoordinator(
-                rootNavigationController: UINavigationController())), 
+                rootNavigationController: UINavigationController())),
         networkMonitor: NetworkMonitor()))
 }
 

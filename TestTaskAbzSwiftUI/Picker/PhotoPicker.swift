@@ -12,6 +12,7 @@ import SwiftUI
 struct PhotoPicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     
+    // Creates and configures the `PHPickerViewController`.
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
         config.selectionLimit = 1
@@ -21,12 +22,15 @@ struct PhotoPicker: UIViewControllerRepresentable {
         return picker
     }
     
+    // Updates the view controller (not used in this case).
     func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
+  
+    // MARK: - Coordinator
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
+    // Handles the `PHPickerViewController` delegate methods.
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: PhotoPicker
         
@@ -34,6 +38,7 @@ struct PhotoPicker: UIViewControllerRepresentable {
             self.parent = parent
         }
         
+        // Called when the user finishes picking images.
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
             guard let provider = results.first?.itemProvider else { return }

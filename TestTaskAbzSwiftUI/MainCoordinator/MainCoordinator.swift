@@ -8,21 +8,26 @@
 import Foundation
 import SwiftUI
 
+// MARK: - MainCoordinatorProtocol
 protocol MainCoordinatorProtocol {
     var selectedTab: Int { get set }
     func setRootController(_ controller: UIViewController)
-    func startHomeFlow()
-    func startSignUpFlow()
+    func startUserListFlow()
+    func startSignUpFlow(existingEmails: Set<String>)
 }
 
+// MARK: - MainCoordinator
 final class MainCoordinator: MainCoordinatorProtocol {
     @Published var selectedTab: Int = 0
     var rootNavigationController: UINavigationController
-    
+   
+    // MARK: - Initialization
     init(rootNavigationController: UINavigationController) {
         self.rootNavigationController = rootNavigationController
     }
     
+    // MARK: - Start
+    // Initial setup of the app. Configures the root view controller with the User List
     func start() {
         let networkService = NetworkManager()
         let userListCoordinator = UserListCoordinator(mainCoordinator: self)
@@ -34,18 +39,21 @@ final class MainCoordinator: MainCoordinatorProtocol {
         rootNavigationController.viewControllers = [splashViewController]
     }
     
-    func startHomeFlow() {
+    // Starts the User List flow and sets it as the selected tab.
+    func startUserListFlow() {
         selectedTab = 0
         let userListCoordinator = UserListCoordinator(mainCoordinator: self)
         userListCoordinator.start()
     }
     
-    func startSignUpFlow() {
-        selectedTab = 1 
+    // Starts the Sign Up flow and sets it as the selected tab.
+    func startSignUpFlow(existingEmails: Set<String>) {
+        selectedTab = 1
         let signUpCoordinator = SignUpCoordinator(mainCoordinator: self, imageManager: ImageServices(), networkManager: NetworkManager())
-        signUpCoordinator.start()
+        signUpCoordinator.start(existingEmails: existingEmails)
     }
     
+    // Sets the root view controller for the navigation stack.
     func setRootController(_ controller: UIViewController) {
         rootNavigationController.viewControllers = [controller]
     }

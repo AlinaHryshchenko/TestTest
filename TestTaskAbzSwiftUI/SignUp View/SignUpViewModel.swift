@@ -8,6 +8,7 @@
 import Foundation
 import _PhotosUI_SwiftUI
 
+// MARK: - SignUpViewModelProtocol
 protocol SignUpViewModelProtocol: ObservableObject {
     var name: String { get set }
     var email: String { get set }
@@ -24,6 +25,8 @@ protocol SignUpViewModelProtocol: ObservableObject {
     var canSignUp: Bool { get }
     var selectedTab: Int { get set }
     var imageManager: ImageServicesProtocol { get set }
+    var showEmailAlreadyRegistered: Bool { get set }
+    var showSuccessRegistered: Bool { get set }
     func registerUser()
     func navigateToSignUp()
     func loadPositions()
@@ -43,38 +46,50 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     @Published var errorMessage: String?
     @Published var selectedTab: Int
     @Published var positions: [Position] = []
+    @Published var showEmailAlreadyRegistered: Bool = false
+    @Published var showSuccessRegistered: Bool = false
     
     var imageManager: ImageServicesProtocol
     private let networkManager: NetworkProtocol
     var coordinator: SignUpCoordinatorProtocol
-
+    private let existingEmails: Set<String>
     
     var canSignUp: Bool {
         ValidatorManager.isValid(name: name, email: email, phone: phone) &&
         !phone.isEmpty && isPhotoUploaded
     }
     
-    init(imageManager: ImageServicesProtocol, coordinator: SignUpCoordinatorProtocol, networkManager: NetworkProtocol) {
+    // MARK: - Initialization
+    init(imageManager: ImageServicesProtocol, coordinator: SignUpCoordinatorProtocol, networkManager: NetworkProtocol, existingEmails: Set<String>) {
         self.imageManager = imageManager
         self.coordinator = coordinator
         self.networkManager = networkManager
         self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 1
+        self.existingEmails = existingEmails
         loadPositions()
     }
     
+    // MARK: - Navigation
     func navigateToSignUp() {
         coordinator.startUserListFlow()
     }
     
+    // MARK: - User Registration
     func registerUser() {
             guard let photoPath = photoPath, let positionId = selectedPosition?.id else {
                 errorMessage = "Photo and position are required"
                 return
             }
-            
+        // Check if the email is already registered
+        if existingEmails.contains(email) {
+            showEmailAlreadyRegistered = true
+            return
+        }
+        
             isLoading = true
             errorMessage = nil
-            
+        
+        // Register user via network manager
             networkManager.registerUserWithDetails(name: name, email: email, phone: phone, positionId: positionId, photoPath: photoPath) { [weak self] success, error in
                 DispatchQueue.main.async {
                     self?.isLoading = false
@@ -82,7 +97,7 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
                     if let error = error {
                         self?.errorMessage = error.localizedDescription
                     } else if success {
-                        self?.errorMessage = nil
+                        self?.showSuccessRegistered = true
                     } else {
                         self?.errorMessage = "Registration failed"
                     }
@@ -90,6 +105,7 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
             }
         }
     
+    // Fetches the list of available positions from the server.
     func loadPositions() {
         networkManager.fetchPositions { [weak self] result in
             DispatchQueue.main.async {

@@ -15,9 +15,12 @@ struct BottomTabBar: View {
     var body: some View {
         HStack {
             Spacer()
+            // Users Tab Button
             Button(action: {
-                selectedTab = 0
-                navigateToSignUp()
+                if selectedTab != 0 {
+                    selectedTab = 0
+                    navigateToSignUp()
+                }
             }) {
                 HStack {
                     Image(selectedTab == 0 
@@ -35,10 +38,14 @@ struct BottomTabBar: View {
                 )}
                 .padding()
             }
+            .disabled(selectedTab == 0)
             Spacer()
+            // Sign Up Tab Button
             Button(action: {
-                selectedTab = 1
-                navigateToSignUp()
+                if selectedTab != 1 {
+                    selectedTab = 1
+                    navigateToSignUp()
+                }
             }) {
                 HStack {
                     Image(selectedTab == 1 
@@ -56,6 +63,7 @@ struct BottomTabBar: View {
                 )}
                 .padding()
             }
+            .disabled(selectedTab == 1)
             Spacer()
         }
         .frame(maxWidth: .infinity)

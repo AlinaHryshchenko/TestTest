@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+// MARK: - UserListViewModelProtocol
 protocol UserListViewModelProtocol: ObservableObject {
     var users: [User] { get }
     var selectedTab: Int { get set }
@@ -17,7 +18,7 @@ protocol UserListViewModelProtocol: ObservableObject {
     func loadUsers(nextPageLink: String?)
     func navigateToSignUp()
     func loadNextPageIfNeeded(currentItem user: User?)
-   
+    func checkInternetConnection()
 }
 
 final class UserListViewModel: UserListViewModelProtocol {
@@ -27,6 +28,7 @@ final class UserListViewModel: UserListViewModelProtocol {
     @Published var selectedTab: Int
     @Published var isConnected: Bool = true
     @Published var hasLoadingFailed: Bool = false
+    @Published var emails: Set<String> = []
     
     private var currentPage = 1
     private let pageSize = 6
@@ -39,19 +41,34 @@ final class UserListViewModel: UserListViewModelProtocol {
     private let networkService: NetworkProtocol
     private let coordinator: UserListCoordinatorProtocol
     
+    // MARK: - Initialization
     init(networkService: NetworkProtocol, coordinator: UserListCoordinatorProtocol, networkMonitor: NetworkMonitorProtocol) {
         self.networkService = networkService
         self.coordinator = coordinator
         self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 0
         self.networkMonitor = networkMonitor
         
+        // Network connection changes
         networkMonitor.isConnectedPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] isConnected in
                 self?.isConnected = isConnected
+                if isConnected {
+                    self?.loadUsers(nextPageLink: nil)
+                }
             }
             .store(in: &cancellables)
     }
     
+    // MARK: - Internet Connection Check
+    func checkInternetConnection() {
+        isConnected = networkMonitor.isConnected
+        if isConnected {
+            loadUsers(nextPageLink: nil)
+        }
+    }
+    
+    // MARK: - Load Users
     func loadUsers(nextPageLink: String? = nil) {
         guard !isLoading, canLoadMore else { return }
        
@@ -83,6 +100,10 @@ final class UserListViewModel: UserListViewModelProtocol {
                         $0.registration_timestamp > $1.registration_timestamp
                     })
                     
+                    newUsers.forEach { user in
+                        self?.emails.insert(user.email)
+                    }
+                    
                     print("Sorted users:")
                     self?.users.forEach { user in
                         print("User: \(user.name), Sorted Registration Date: \(user.registration_timestamp)")
@@ -103,6 +124,7 @@ final class UserListViewModel: UserListViewModelProtocol {
         }
     }
     
+    // Loads the next page of users if the current item is the last one in the list.
     func loadNextPageIfNeeded(currentItem user: User?) {
         guard let user = user else {
             print("No current item to check. Loading first page.")
@@ -116,8 +138,10 @@ final class UserListViewModel: UserListViewModelProtocol {
         }
     }
     
+    // MARK: - Navigation
     func navigateToSignUp() {
-        coordinator.startSignUpFlow()
+        coordinator.startSignUpFlow(existingEmails: emails)
+
     }
 }
 

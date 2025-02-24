@@ -17,6 +17,7 @@ protocol NetworkProtocol {
 }
 
 final class NetworkManager: NetworkProtocol {
+    // MARK: - Fetch Users
     func fetchUsers(page: Int, count: Int, completion: @escaping (Result<([User], Int, String?), Error>) -> Void) {
         let urlString = "https://frontend-test-assignment-api.abz.agency/api/v1/users?page=\(page)&count=\(count)"
         guard let url = URL(string: urlString) else {
@@ -42,7 +43,8 @@ final class NetworkManager: NetworkProtocol {
         }.resume()
     }
     
-    
+    // MARK: - Fetch Token
+    // Fetches a token required for user registration.
     func fetchToken(completion: @escaping (String?, Error?) -> Void) {
         let urlString = "https://frontend-test-assignment-api.abz.agency/api/v1/token"
         
@@ -75,6 +77,7 @@ final class NetworkManager: NetworkProtocol {
         }.resume()
     }
     
+    // Registers a user with details, including fetching a token and handling the registration process.
     func registerUserWithDetails(name: String, email: String, phone: String, positionId: Int, photoPath: String, completion: @escaping (Bool, Error?) -> Void) {
         fetchToken { [weak self] token, error in
             if let error = error {
@@ -103,6 +106,7 @@ final class NetworkManager: NetworkProtocol {
         }
     }
     
+    // MARK: - Get Next User ID
     private func getNextUserId(from users: [User]) -> Int {
         guard let maxId = users.map({ $0.id }).max() else {
             return 1
@@ -110,6 +114,8 @@ final class NetworkManager: NetworkProtocol {
         return maxId + 1
     }
     
+    // MARK: - Register User
+    // Registers a user with the provided details.
     func registerUser(name: String, email: String, phone: String, positionId: Int, photoPath: String, token: String, completion: @escaping (Bool, Error?) -> Void) {
         let url = URL(string: "https://frontend-test-assignment-api.abz.agency/api/v1/users")!
         var request = URLRequest(url: url)
@@ -184,6 +190,8 @@ final class NetworkManager: NetworkProtocol {
         }.resume()
     }
     
+    // MARK: - Fetch Positions
+    // Fetches the list of available positions from the API.
     func fetchPositions(completion: @escaping (Result<[Position], Error>) -> Void) {
         let urlString = "https://frontend-test-assignment-api.abz.agency/api/v1/positions"
         

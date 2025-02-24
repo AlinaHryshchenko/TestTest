@@ -24,7 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         self.window = window
         window.overrideUserInterfaceStyle = .light
-
+        
+        // Initialize the main coordinator with the navigation controller
         let mainCoordinator = MainCoordinator(rootNavigationController: navigationController)
         mainCoordinator.start()
     }

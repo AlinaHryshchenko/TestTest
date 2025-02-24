@@ -9,19 +9,23 @@ import Foundation
 import Network
 import Combine
 
+// MARK: - NetworkMonitorProtocol
 protocol NetworkMonitorProtocol {
     var isConnected: Bool { get set }
     var isConnectedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 class NetworkMonitor: NetworkMonitorProtocol, ObservableObject {
+    @Published var isConnected: Bool = true
+   
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitor")
     
-    @Published var isConnected: Bool = true
     var isConnectedPublisher: AnyPublisher<Bool, Never> {
-            $isConnected.eraseToAnyPublisher()
-        }
+        $isConnected.eraseToAnyPublisher()
+    }
+    
+    // MARK: - Initialization
     init() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
