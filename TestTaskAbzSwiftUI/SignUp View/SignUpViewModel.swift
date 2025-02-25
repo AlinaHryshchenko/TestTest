@@ -30,7 +30,7 @@ protocol SignUpViewModelProtocol: ObservableObject {
     func registerUser()
     func navigateToSignUp()
     func loadPositions()
-    func handleSelectedImage(_ image: UIImage) 
+    func handleSelectedImage(_ image: UIImage)
 }
 
 final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
@@ -52,7 +52,7 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     
     var imageManager: ImageServicesProtocol
     private let networkManager: NetworkProtocol
-    var coordinator: SignUpCoordinatorProtocol
+    private var coordinator: SignUpCoordinatorProtocol
     private let existingEmails: Set<String>
     
     var canSignUp: Bool {
@@ -61,11 +61,16 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     }
     
     // MARK: - Initialization
-    init(imageManager: ImageServicesProtocol, coordinator: SignUpCoordinatorProtocol, networkManager: NetworkProtocol, existingEmails: Set<String>) {
+    init(
+        imageManager: ImageServicesProtocol,
+        coordinator: SignUpCoordinatorProtocol,
+        networkManager: NetworkProtocol,
+        existingEmails: Set<String>
+    ) {
         self.imageManager = imageManager
         self.coordinator = coordinator
         self.networkManager = networkManager
-        self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 1
+        self.selectedTab = coordinator.selectedTab
         self.existingEmails = existingEmails
         loadPositions()
     }
@@ -77,34 +82,41 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
     
     // MARK: - User Registration
     func registerUser() {
-            guard let photoPath = photoPath, let positionId = selectedPosition?.id else {
-                errorMessage = "Photo and position are required"
-                return
-            }
+        guard let photoPath = photoPath, let positionId = selectedPosition?.id else {
+            errorMessage = "Photo and position are required"
+            return
+        }
         // Check if the email is already registered
         if existingEmails.contains(email) {
             showEmailAlreadyRegistered = true
             return
         }
         
-            isLoading = true
-            errorMessage = nil
+        isLoading = true
+        errorMessage = nil
         
         // Register user via network manager
-            networkManager.registerUserWithDetails(name: name, email: email, phone: phone, positionId: positionId, photoPath: photoPath) { [weak self] success, error in
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                    
-                    if let error = error {
-                        self?.errorMessage = error.localizedDescription
-                    } else if success {
-                        self?.showSuccessRegistered = true
-                    } else {
-                        self?.errorMessage = "Registration failed"
-                    }
+        networkManager.registerUserWithDetails(
+            name: name,
+            email: email,
+            phone: phone,
+            positionId: positionId,
+            photoPath: photoPath
+        ) { [weak self] success, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    print(self?.errorMessage)
+                } else if success {
+                    self?.showSuccessRegistered = true
+                } else {
+                    self?.errorMessage = "Registration failed"
                 }
             }
         }
+    }
     
     // Fetches the list of available positions from the server.
     func loadPositions() {

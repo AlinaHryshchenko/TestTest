@@ -10,6 +10,7 @@ import SwiftUI
 
 // MARK: - SignUpCoordinatorProtocol
 protocol SignUpCoordinatorProtocol {
+    var selectedTab: Int { get }
     func start(existingEmails: Set<String>)
     func startUserListFlow()
 }
@@ -18,6 +19,10 @@ final class SignUpCoordinator: SignUpCoordinatorProtocol {
     let mainCoordinator: MainCoordinatorProtocol
     var imageManager: ImageServicesProtocol
     var networkManager: NetworkProtocol
+    
+    var selectedTab: Int {
+        mainCoordinator.selectedTab
+    }
     
     // MARK: - Initialization
     init(mainCoordinator: MainCoordinatorProtocol, imageManager: ImageServices, networkManager: NetworkManager) {

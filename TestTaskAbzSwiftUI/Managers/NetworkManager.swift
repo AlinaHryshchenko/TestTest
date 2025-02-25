@@ -11,7 +11,16 @@ import Foundation
 protocol NetworkProtocol {
     func fetchUsers(page: Int, count: Int, completion: @escaping (Result<([User], Int, String?), Error>) -> Void)
     func fetchToken(completion: @escaping (String?, Error?) -> Void)
-    func registerUser(name: String, email: String, phone: String, positionId: Int, photoPath: String, token: String, completion: @escaping (Bool, Error?) -> Void)
+    func registerUser(
+        id: Int,
+        name: String,
+        email: String,
+        phone: String,
+        positionId: Int,
+        photoPath: String,
+        token: String,
+        completion: @escaping (Bool, Error?) -> Void
+    )
     func registerUserWithDetails(name: String, email: String, phone: String, positionId: Int, photoPath: String, completion: @escaping (Bool, Error?) -> Void)
     func fetchPositions(completion: @escaping (Result<[Position], Error>) -> Void)
 }
@@ -36,6 +45,9 @@ final class NetworkManager: NetworkProtocol {
             }
             do {
                 let decodedResponse = try JSONDecoder().decode(UsersResponse.self, from: data)
+                decodedResponse.users.forEach { user in
+                    print("User ID: \(user.id), Name: \(user.name)")
+                }
                 completion(.success((decodedResponse.users, decodedResponse.total_pages, decodedResponse.links.next_url)))
             } catch {
                 completion(.failure(error))
@@ -78,7 +90,14 @@ final class NetworkManager: NetworkProtocol {
     }
     
     // Registers a user with details, including fetching a token and handling the registration process.
-    func registerUserWithDetails(name: String, email: String, phone: String, positionId: Int, photoPath: String, completion: @escaping (Bool, Error?) -> Void) {
+    func registerUserWithDetails(
+        name: String,
+        email: String,
+        phone: String,
+        positionId: Int,
+        photoPath: String,
+        completion: @escaping (Bool, Error?) -> Void
+    ) {
         fetchToken { [weak self] token, error in
             if let error = error {
                 completion(false, error)
@@ -92,13 +111,21 @@ final class NetworkManager: NetworkProtocol {
             
             self?.fetchUsers(page: 1, count: 100) { usersResult in
                 switch usersResult {
-                case .success(let users, _, _):
-                    let nextUserId = self?.getNextUserId(from: users) ?? 1
+                case .success(let tuple):
+                    let nextUserId = self?.getNextUserId(from: tuple.0) ?? 1
                     
-                    self?.registerUser(name: name, email: email, phone: phone, positionId: positionId, photoPath: photoPath, token: token) { success, error in
+                    self?.registerUser(
+                        id: nextUserId,
+                        name: name,
+                        email: email.lowercased(),
+                        phone: phone,
+                        positionId: positionId,
+                        photoPath: photoPath,
+                        token: token
+                    ) { success, error in
                         completion(success, error)
                     }
-                    
+                print("Registering user with ID: \(nextUserId), name: \(name), email: \(email), phone: \(phone), positionId: \(positionId)")
                 case .failure(let error):
                     completion(false, error)
                 }
@@ -116,7 +143,16 @@ final class NetworkManager: NetworkProtocol {
     
     // MARK: - Register User
     // Registers a user with the provided details.
-    func registerUser(name: String, email: String, phone: String, positionId: Int, photoPath: String, token: String, completion: @escaping (Bool, Error?) -> Void) {
+    func registerUser(
+        id: Int,
+        name: String,
+        email: String,
+        phone: String,
+        positionId: Int,
+        photoPath: String,
+        token: String,
+        completion: @escaping (Bool, Error?) -> Void
+    ) {
         let url = URL(string: "https://frontend-test-assignment-api.abz.agency/api/v1/users")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -133,6 +169,10 @@ final class NetworkManager: NetworkProtocol {
                 body.append(data)
             }
         }
+        let nextUserId = id
+        append("--\(boundary)\(newline)")
+        append("Content-Disposition: form-data; name=\"id\"\r\n\r\n")
+        append("\(nextUserId)\r\n")
         
         append("--\(boundary)\(newline)")
         append("Content-Disposition: form-data; name=\"name\"\r\n\r\n")
@@ -150,7 +190,7 @@ final class NetworkManager: NetworkProtocol {
         append("Content-Disposition: form-data; name=\"position_id\"\r\n\r\n")
         append("\(positionId)\r\n")
         
-        let registrationTimestamp = Int(Date().timeIntervalSince1970) // Текущее время в секундах
+        let registrationTimestamp = Int(Date().timeIntervalSince1970)
             append("--\(boundary)\(newline)")
             append("Content-Disposition: form-data; name=\"registration_timestamp\"\r\n\r\n")
             append("\(registrationTimestamp)\r\n")
@@ -220,3 +260,4 @@ final class NetworkManager: NetworkProtocol {
         }.resume()
     }
 }
+

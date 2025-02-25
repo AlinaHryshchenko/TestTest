@@ -10,11 +10,16 @@ import SwiftUI
 
 // MARK: - UserListCoordinatorProtocol
 protocol UserListCoordinatorProtocol {
+    var selectedTab: Int { get }
     func startSignUpFlow(existingEmails: Set<String>)
 }
 
 final class UserListCoordinator: UserListCoordinatorProtocol {
     var mainCoordinator: MainCoordinatorProtocol
+    
+    var selectedTab: Int {
+        mainCoordinator.selectedTab
+    }
     
     // MARK: - Initialization
     init(mainCoordinator: MainCoordinatorProtocol) {
@@ -23,18 +28,6 @@ final class UserListCoordinator: UserListCoordinatorProtocol {
     
     // Starts the Sign Up flow by creating the necessary ViewModel and View.
     func startSignUpFlow(existingEmails: Set<String>) { 
-            let signUpViewModel = SignUpViewModel(
-                imageManager: ImageServices(),
-                coordinator: SignUpCoordinator(
-                    mainCoordinator: mainCoordinator,
-                    imageManager: ImageServices(),
-                    networkManager: NetworkManager()
-                ),
-                networkManager: NetworkManager(),
-                existingEmails: existingEmails
-            )
-            let signUpView = SignUpView(viewModel: signUpViewModel)
-            let hostingController = UIHostingController(rootView: signUpView)
         mainCoordinator.startSignUpFlow(existingEmails: existingEmails)
     }
    

@@ -13,6 +13,7 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
     @ObservedObject private var viewModel: ViewModel
     @StateObject private var imagePickerViewModel = ImagePickerViewModel()
     @State private var isLoadingPositions = true
+    @State private var isKeyboardVisible = false
     
     // MARK: - Initialization
     init(viewModel: ViewModel) {
@@ -47,61 +48,18 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                         CustomTextField(text: $viewModel.name, placeholder: "Your name") // Name input field
                         CustomTextField(text: $viewModel.email, placeholder: "Email", isEmail: true) // Email input field
                         CustomTextField(text: $viewModel.phone, placeholder: "Phone", isPhone: true) // Phone input field
-                       
-                        // Position selection
-                        Text("Select your position")
-                            .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
-                            .foregroundColor(Color(Colors.textDarkDrayColor))
-                            .padding(.top, 10)
                         
+                        // Position selection
+                        selectYourPosition
                         if isLoadingPositions {
-                            ProgressView("Loading positions...")
+                            ProgressView()
                                 .padding(.top, 10)
                         } else {
                             // List of positions
-                            ForEach(viewModel.positions, id: \.id) { position in
-                                HStack {
-                                    Image(viewModel.selectedPosition?.id == position.id ? "BlueRound" : "GrayRound")
-                                        .foregroundColor(.blue)
-                                    
-                                    Text(position.name)
-                                        .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
-                                        .foregroundColor(Color(Colors.textDarkDrayColor))
-                                        .padding(.leading, 15)
-                                }
-                                .padding(.top, 10)
-                                .padding(.leading, 15)
-                                .onTapGesture {
-                                    viewModel.selectedPosition = position
-                                }
-                            }
+                            listOfPositions
                         }
                         Spacer(minLength: 10)
-                        
-                        // Photo upload section
-                        HStack {
-                            Text("Upload your photo")
-                                .foregroundColor(viewModel.uploadErrorMessage == nil
-                                                 ? Color(Colors.textGrayColor)
-                                                 : Color(Colors.redColor))
-                                .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
-                            Spacer()
-                            
-                            Button(action: {
-                                imagePickerViewModel.showActionSheet = true
-                            }) {
-                                Text("Upload")
-                                    .foregroundColor(Color(Colors.textBlueColor))
-                                    .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
-                            }
-                        }
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(viewModel.uploadErrorMessage != nil
-                                        ? Color(Colors.redColor)
-                                        : Color(Colors.tFBorderColor), lineWidth: 1)
-                        )
+                        uploadPhoto
                         
                         if let uploadErrorMessage = viewModel.uploadErrorMessage {
                             ErrorText(message: uploadErrorMessage)
@@ -112,7 +70,6 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                             ErrorText(message: errorMessage)
                                 .padding(.leading, 15)
                         }
-                        
                         Spacer()
                         
                         // Sign Up button
@@ -121,17 +78,7 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                             Button(action: {
                                 viewModel.registerUser()
                             }) {
-                                Text("Sign up")
-                                    .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
-                                    .foregroundColor(viewModel.canSignUp
-                                                     ? Color(Colors.textDarkDrayColor)
-                                                     : Color(Colors.textLightGrayColor))
-                                    .frame(minWidth: 140, maxHeight: 50)
-                                    .padding()
-                                    .background(viewModel.canSignUp
-                                                ? Color(Colors.yellowColor)
-                                                : Color(Colors.grayColor))
-                                    .cornerRadius(24)
+                                textSignUp
                             }
                             .disabled(!viewModel.canSignUp || viewModel.isLoading)
                             Spacer()
@@ -140,16 +87,31 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
                     .padding(.horizontal, 16)
                 }
                 // Bottom tab bar
-                BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
-                    viewModel.navigateToSignUp()
-                })
+                if !isKeyboardVisible {
+                    BottomTabBar(selectedTab: $viewModel.selectedTab, navigateToSignUp: {
+                        viewModel.navigateToSignUp()
+                    })
+                }
             }
             .toolbar(.hidden)
             .onAppear {
                 if !viewModel.positions.isEmpty {
                     isLoadingPositions = false
                 }
+                
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
+                    isKeyboardVisible = true
+                }
+                
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    isKeyboardVisible = false
+                }
             }
+            .onDisappear {
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+                NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+            }
+            
             .onChange(of: viewModel.positions) { newPositions in
                 if !newPositions.isEmpty {
                     isLoadingPositions = false
@@ -185,6 +147,74 @@ struct SignUpView<ViewModel: SignUpViewModelProtocol>: View {
             if let uploadErrorMessage = viewModel.uploadErrorMessage {
                 ErrorText(message: uploadErrorMessage)
                     .padding(.leading, 15)
+            }
+        }
+    }
+    
+    var selectYourPosition: some View {
+        Text("Select your position")
+            .font(.custom(NutinoSansFont.regular.rawValue, size: 18))
+            .foregroundColor(Color(Colors.textDarkDrayColor))
+            .padding(.top, 10)
+    }
+    
+    var uploadPhoto: some View {
+        HStack {
+            Text("Upload your photo")
+                .foregroundColor(viewModel.uploadErrorMessage == nil
+                                 ? Color(Colors.textGrayColor)
+                                 : Color(Colors.redColor))
+                .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+            Spacer()
+            
+            Button(action: {
+                imagePickerViewModel.showActionSheet = true
+            }) {
+                Text("Upload")
+                    .foregroundColor(Color(Colors.textBlueColor))
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+            }
+        }
+        .padding()
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(viewModel.uploadErrorMessage != nil
+                        ? Color(Colors.redColor)
+                        : Color(Colors.tFBorderColor), lineWidth: 1)
+        )
+        
+    }
+    
+    var textSignUp: some View {
+        Text("Sign up")
+            .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+            .foregroundColor(viewModel.canSignUp
+                             ? Color(Colors.textDarkDrayColor)
+                             : Color(Colors.textLightGrayColor))
+            .frame(minWidth: 140, maxHeight: 50)
+            .padding()
+            .background(viewModel.canSignUp
+                        ? Color(Colors.yellowColor)
+                        : Color(Colors.grayColor))
+            .cornerRadius(24)
+    }
+    
+    
+    var listOfPositions: some View {
+        ForEach(viewModel.positions, id: \.id) { position in
+            HStack {
+                Image(viewModel.selectedPosition?.id == position.id ? "BlueRound" : "GrayRound")
+                    .foregroundColor(.blue)
+                
+                Text(position.name)
+                    .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
+                    .foregroundColor(Color(Colors.textDarkDrayColor))
+                    .padding(.leading, 15)
+            }
+            .padding(.top, 10)
+            .padding(.leading, 15)
+            .onTapGesture {
+                viewModel.selectedPosition = position
             }
         }
     }

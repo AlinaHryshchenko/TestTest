@@ -15,6 +15,7 @@ protocol UserListViewModelProtocol: ObservableObject {
     var isLoading: Bool  { get set }
     var isConnected: Bool { get set }
     var hasLoadingFailed: Bool { get }
+    var loadingStartTime: Date? { get }
     func loadUsers(nextPageLink: String?)
     func navigateToSignUp()
     func loadNextPageIfNeeded(currentItem user: User?)
@@ -29,7 +30,8 @@ final class UserListViewModel: UserListViewModelProtocol {
     @Published var isConnected: Bool = true
     @Published var hasLoadingFailed: Bool = false
     @Published var emails: Set<String> = []
-    
+    @Published var loadingStartTime: Date?
+
     private var currentPage = 1
     private let pageSize = 6
     private var totalUsers: Int = 0
@@ -45,7 +47,7 @@ final class UserListViewModel: UserListViewModelProtocol {
     init(networkService: NetworkProtocol, coordinator: UserListCoordinatorProtocol, networkMonitor: NetworkMonitorProtocol) {
         self.networkService = networkService
         self.coordinator = coordinator
-        self.selectedTab = (coordinator as? MainCoordinator)?.selectedTab ?? 0
+        self.selectedTab = coordinator.selectedTab
         self.networkMonitor = networkMonitor
         
         // Network connection changes
@@ -80,11 +82,10 @@ final class UserListViewModel: UserListViewModelProtocol {
         isLoading = true
         hasLoadingFailed = false
         
-        let pageLink = nextPageLink ?? "https://frontend-test-assignment-api.abz.agency/api/v1/users?page=\(currentPage)&count=\(pageSize)"
-        
         networkService.fetchUsers(page: currentPage, count: pageSize) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
+                self?.loadingStartTime = Date()
                 
                 switch result {
                 case .success(let (newUsers, totalPages, nextLink)):
@@ -95,7 +96,6 @@ final class UserListViewModel: UserListViewModelProtocol {
                     newUsers.forEach { user in
                         self?.emails.insert(user.email)
                     }
-                
                     self?.nextPageLink = nextLink
                     self?.canLoadMore = self?.users.count ?? 0 < totalPages * (self?.pageSize ?? 1)
                     self?.currentPage += 1
@@ -124,7 +124,6 @@ final class UserListViewModel: UserListViewModelProtocol {
     // MARK: - Navigation
     func navigateToSignUp() {
         coordinator.startSignUpFlow(existingEmails: emails)
-
     }
 }
 

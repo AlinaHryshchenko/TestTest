@@ -31,9 +31,10 @@ final class MainCoordinator: MainCoordinatorProtocol {
     func start() {
         let networkService = NetworkManager()
         let userListCoordinator = UserListCoordinator(mainCoordinator: self)
-        let userListViewModel = UserListViewModel(networkService: networkService,
-                                                  coordinator: userListCoordinator,
-                                                  networkMonitor: NetworkMonitor())                
+        let userListViewModel = UserListViewModel(
+            networkService: networkService,
+            coordinator: userListCoordinator,
+            networkMonitor: NetworkMonitor())
         let view = UserListView(viewModel: userListViewModel)
         let splashViewController = UIHostingController(rootView: view)
         rootNavigationController.viewControllers = [splashViewController]
@@ -49,7 +50,10 @@ final class MainCoordinator: MainCoordinatorProtocol {
     // Starts the Sign Up flow and sets it as the selected tab.
     func startSignUpFlow(existingEmails: Set<String>) {
         selectedTab = 1
-        let signUpCoordinator = SignUpCoordinator(mainCoordinator: self, imageManager: ImageServices(), networkManager: NetworkManager())
+        let signUpCoordinator = SignUpCoordinator(
+            mainCoordinator: self,
+            imageManager: ImageServices(),
+            networkManager: NetworkManager())
         signUpCoordinator.start(existingEmails: existingEmails)
     }
     
