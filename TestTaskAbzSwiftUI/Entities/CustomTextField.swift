@@ -15,7 +15,7 @@ struct CustomTextField: View {
     var placeholder: String
     var isEmail: Bool = false
     var isPhone: Bool = false
-   
+    
     // MARK: - Validation
     // Checks if the input is valid based on the type (name, email, or phone).
     var isValid: Bool {
@@ -39,14 +39,6 @@ struct CustomTextField: View {
                                                                   lineWidth: 1))
                 .font(.custom(NutinoSansFont.regular.rawValue, size: 16))
             
-                .onChange(of: text) { newValue in
-                    if isPhone {
-                        let filtered = newValue.filter { $0.isNumber }
-                        
-                        text = formatPhoneNumber(filtered)
-                    }
-                }
-            
             // Show phone number placeholder if the field is for phone input and is valid or empty
             if isPhone && (text.isEmpty || isValid) {
                 Text("+38 (XXX) XXX - XX - XX")
@@ -64,22 +56,15 @@ struct CustomTextField: View {
                 .padding(.top, 3)
                 .opacity(isValid ? 0 : 1)
         }
-    }
-    
-    private func formatPhoneNumber(_ number: String) -> String {
-        let cleanedNumber = number.prefix(12) 
-        let pattern = "(\\d{2})(\\d{3})(\\d{3})(\\d{2})(\\d{2})"
-        let replacement = "+$1 ($2) $3-$4-$5"
         
-        let regex = try? NSRegularExpression(pattern: pattern, options: [])
-        let formattedNumber = regex?.stringByReplacingMatches(
-            in: String(cleanedNumber),
-            options: [],
-            range: NSRange(location: 0, length: cleanedNumber.count),
-            withTemplate: replacement
-        ) ?? number
-        
-        return formattedNumber
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
     }
+}
 
+extension UIApplication {
+    func endEditing() {
+        self.windows.first?.endEditing(true)
+    }
 }

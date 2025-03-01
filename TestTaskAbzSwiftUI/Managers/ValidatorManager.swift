@@ -29,8 +29,10 @@ struct ValidatorManager {
     
     // MARK: - Phone Validation
     static func isValidPhone(_ phone: String) -> Bool {
+        let cleanedPhone = phone.replacingOccurrences(of: "[^0-9+]", with: "", options: .regularExpression)
+        
         let phoneRegex = #"^[\+]?380([0-9]{9})$"#
-        return NSPredicate(format: "SELF MATCHES %@", phoneRegex).evaluate(with: phone)
+        return NSPredicate(format: "SELF MATCHES %@", phoneRegex).evaluate(with: cleanedPhone)
     }
     
     // MARK: - Combined Validation

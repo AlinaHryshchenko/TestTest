@@ -111,6 +111,7 @@ final class SignUpViewModel: SignUpViewModelProtocol, ObservableObject {
                     print(self?.errorMessage)
                 } else if success {
                     self?.showSuccessRegistered = true
+                    self?.coordinator.startUserListFlow()
                 } else {
                     self?.errorMessage = "Registration failed"
                 }
